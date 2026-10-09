@@ -10,7 +10,9 @@ Why use dirshare when git exists? Dirshare is not trying to be a version control
 Creates and configures a new share within your current directory.
 
 #### Usage
-`dirshare new <directory-name> <remote-url>`
+```
+dirshare new <directory-name> <remote-url>
+```
 | Argument | Description |
 |----------|-------------|
 | directory-name | The name of the directory to create. This is also the name used to publicly identify the share. |
@@ -24,7 +26,9 @@ Creates and configures a new share within your current directory.
 Clones an existing share and configures it for synchronisation.
 
 #### Usage
-`dirshare join <remote-url>`
+```
+dirshare join <remote-url>
+```
 | Argument | Description |
 |----------|-------------|
 | remote-url | the url of the remote repository containing the share that will be cloned. |
@@ -36,11 +40,17 @@ Clones an existing share and configures it for synchronisation.
 Reports the listening and synchronisation status of the share associated with the current working directory.
 
 #### Usage
-`dirshare status`
+```
+dirshare status
+```
 
 ### dirshare start/dirshare stop
 Start or pause the synchronsiation of the share associated with the current working directory.
 
 #### Usage
-`dirshare start`
-`dirshare stop`
+```
+dirshare start
+```
+```
+dirshare stop
+```
