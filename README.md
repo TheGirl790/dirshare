@@ -11,11 +11,11 @@ Creates and configures a new share within your current directory.
 
 #### Usage
 ```
-dirshare new <directory-name> <remote-url>
+dirshare new <share-name> <remote-url>
 ```
 | Argument | Description |
 |----------|-------------|
-| directory-name | The name of the directory to create. This is also the name used to publicly identify the share. |
+| share-name | The name of the share to create. This is also the name used to publicly identify the share. |
 | remote-url | Specifies the url of the remote git repository that will be used by dirshare. |
 
 #### Notes
