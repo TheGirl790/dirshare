@@ -1,11 +1,13 @@
 use crate::git::*;
+use crate::listener::ListenerConfig;
 use crate::manifest::*;
+
 use std::fs;
 use std::path::PathBuf;
 
 use anyhow::{Result, bail};
 
-pub fn new_share(dir: &PathBuf, name: String, remote: String) -> Result<()> {
+pub fn new_share(dir: &PathBuf, config_path: &PathBuf, name: String, remote: String) -> Result<()> {
     let mut share_dir = dir.clone();
     share_dir.push(&name);
 
@@ -20,7 +22,7 @@ pub fn new_share(dir: &PathBuf, name: String, remote: String) -> Result<()> {
         let is_empty = fs::read_dir(&share_dir)?.next().is_none();
 
         if !is_empty {
-            bail!("New share directory exists is not empty.");
+            bail!("New share directory exists and is not empty.");
         }
     }
 
@@ -46,21 +48,25 @@ pub fn new_share(dir: &PathBuf, name: String, remote: String) -> Result<()> {
         println!("Pushing changes...");
         git.push("dirshare setup")?;
 
+        println!("Adding share to listener config...");
+        let mut config = ListenerConfig::load(&config_path)?;
+        config.share_paths.push(share_dir);
+        config.write(&config_path)?;
+
         println!("Successfully created share '{}'!", name);
 
     } else {
         let contents = fs::read_to_string(manifest_path)?;
         let _: ShareManifest = toml::from_str(&contents)?;
 
-        println!("Remote is already a share, aborting...\nIf you want to join an existing share, try using `dirshare join`");
-
+        eprintln!("Remote is already a share, aborting...\nIf you want to join an existing share, try using `dirshare join`");
         fs::remove_dir_all(share_dir)?;
     }
 
     Ok(())
 }
 
-pub fn join_share(dir: &PathBuf, remote: String) -> Result<()> {
+pub fn join_share(dir: &PathBuf, config_path: &PathBuf, remote: String) -> Result<()> {
     let mut share_dir = dir.clone();
     share_dir.push("temp");
 
@@ -85,7 +91,9 @@ pub fn join_share(dir: &PathBuf, remote: String) -> Result<()> {
 
     if manifest_path.exists() && manifest_path.is_file() {
         println!("Configuring share...");
-        let manifest = ShareManifest::load(&manifest_path)?;
+        let mut manifest = ShareManifest::load(&manifest_path)?;
+
+        manifest.status = ShareStatus::Active;
 
         let parent = share_dir
             .parent()
@@ -95,10 +103,14 @@ pub fn join_share(dir: &PathBuf, remote: String) -> Result<()> {
 
         fs::rename(&share_dir, &new_share_dir)?;
 
+        println!("Adding share to listener config...");
+        let mut config = ListenerConfig::load(&config_path)?;
+        config.share_paths.push(new_share_dir);
+        config.write(&config_path)?;
+
         println!("Successfully joined share '{}'!", manifest.name);
     } else {
-        println!("Remote is not a share, aborting...\nIf you want to create a new share, try using `dirshare new`");
-
+        eprintln!("Remote is not a share, aborting...\nIf you want to create a new share, try using `dirshare new`");
         fs::remove_dir_all(share_dir)?;
     }
 

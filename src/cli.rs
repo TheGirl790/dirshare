@@ -7,6 +7,7 @@ pub enum Command {
     Status,
     Start,
     Stop,
+    Listen,
 }
 
 #[derive(Parser, Debug)]
