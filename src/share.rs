@@ -50,7 +50,9 @@ pub fn new_share(dir: &PathBuf, config_path: &PathBuf, name: String, remote: Str
 
         println!("Adding share to listener config...");
         let mut config = ListenerConfig::load(&config_path)?;
-        config.share_paths.push(share_dir);
+        if !config.share_paths.contains(&share_dir) {
+            config.share_paths.push(share_dir);
+        }
         config.write(&config_path)?;
 
         println!("Successfully created share '{}'!", name);
@@ -105,7 +107,9 @@ pub fn join_share(dir: &PathBuf, config_path: &PathBuf, remote: String) -> Resul
 
         println!("Adding share to listener config...");
         let mut config = ListenerConfig::load(&config_path)?;
-        config.share_paths.push(new_share_dir);
+        if !config.share_paths.contains(&new_share_dir) {
+            config.share_paths.push(new_share_dir);
+        }
         config.write(&config_path)?;
 
         println!("Successfully joined share '{}'!", manifest.name);

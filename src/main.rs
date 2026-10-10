@@ -50,8 +50,8 @@ fn main() -> Result<()> {
             )
         },
         Command::Listen => {
-            let listener = ShareListener::new(&config_path)?;
-            listener.start()?;
+            let mut listener = ShareListener::new(&config_path)?;
+            listener.start(config_path)?;
 
             Ok(())
         }
