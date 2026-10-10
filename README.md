@@ -37,7 +37,7 @@ dirshare join <remote-url>
 - The directory is created in the current working directory.
 
 ### dirshare watch
-Starts the dirshare watcher program to automatically sync changes across all configured shares/
+Starts the dirshare watcher program to automatically sync changes across all configured shares.
 
 #### Usage
 ```
