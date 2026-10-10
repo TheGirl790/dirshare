@@ -64,4 +64,67 @@ impl GitManager {
 
         Ok(())
     }
+
+    pub fn pull(&self) -> Result<()> {
+        let output = Command::new("git")
+            .args(["pull", "origin", "main"])
+            .current_dir(&self.repo_dir)
+            .output()
+            .context("Could not launch Git. Is it installed?")?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            bail!("Git add failed: {stderr}");
+        }
+
+        Ok(())
+    }
+
+    pub fn origin_matches_local(&self) -> Result<bool> {
+        let output = Command::new("git")
+            .args(["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"])
+            .current_dir(&self.repo_dir)
+            .output()?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            bail!("No upstream branch configured: {stderr}");
+        }
+
+        let output = Command::new("git")
+            .arg("fetch")
+            .current_dir(&self.repo_dir)
+            .output()?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            bail!("Origin check failed: {stderr}");
+        }
+
+        let output = Command::new("git")
+            .args(["rev-parse", "HEAD"])
+            .current_dir(&self.repo_dir)
+            .output()?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            bail!("Origin check failed: {stderr}");
+        }
+
+        let local_id = output.stdout.trim_ascii();
+
+        let output = Command::new("git")
+            .args(["rev-parse", "@{u}"])
+            .current_dir(&self.repo_dir)
+            .output()?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            bail!("Origin check failed: {stderr}");
+        }
+
+        let upstream_id = output.stdout.trim_ascii();
+
+        Ok(local_id == upstream_id)
+    }
 }
